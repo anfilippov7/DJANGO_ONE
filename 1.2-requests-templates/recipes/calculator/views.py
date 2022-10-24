@@ -1,5 +1,5 @@
-from django.shortcuts import render, reverse
-from django.http import HttpResponse
+from django.shortcuts import render
+
 
 DATA = {
     'omlet': {
@@ -45,7 +45,6 @@ def omlet(request):
         'молоко, л': 0.1*servings,
         'соль, ч.л.': 0.5*servings,
     }}
-    print(DATA['omlet']['яйца, шт'])
     return render(request, 'calculator/index.html', context)
 
 
@@ -81,5 +80,5 @@ def cocktail(request):
         'молоко, г': 300*servings,
         'мороженое, г': 150*servings,
         'сахар, ст.ложки': 2*servings,
-        }}
+    }}
     return render(request, 'calculator/index.html', context)

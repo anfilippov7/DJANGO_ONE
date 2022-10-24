@@ -15,7 +15,10 @@ Including another URLconf
 """
 
 from django.urls import path, include
+from stations.views import bus_stations, index
 
 urlpatterns = [
     path('', include('stations.urls')),
+    path('bus_stations/', bus_stations),
+    path('index/', index),
 ]
