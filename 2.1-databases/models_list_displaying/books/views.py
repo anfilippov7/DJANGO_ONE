@@ -7,6 +7,7 @@ def books_view(request):
     template = 'books/books.html'
     books_objects = Book.objects.all()
     print(books_objects)
+    print(books_objects.query)
     context = {
         'books': books_objects,
     }
@@ -16,6 +17,7 @@ def books_view(request):
 def book_view(request, pub_date):
     template = 'books/book.html'
     book_objects = Book.objects.all()
+    print(str(book_objects.query))
     book_pub_date = Book.objects.filter(pub_date=pub_date)
     id_pub_date = [f'{book.id}' for book in book_pub_date][0]
     CONTENT = [book for book in book_objects]
