@@ -18,7 +18,6 @@ class Student(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=30, verbose_name='Имя')
     teachers = models.ManyToManyField(Teacher, related_name='students')
-    # teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
     group = models.CharField(max_length=10, verbose_name='Класс')
 
     class Meta:
@@ -30,7 +29,3 @@ class Student(models.Model):
 
 
 
-# class StudentTeachers(models.Model):
-#     id = models.AutoField(primary_key=True)
-#     teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
-#     student = models.ForeignKey(Student, on_delete=models.CASCADE)
