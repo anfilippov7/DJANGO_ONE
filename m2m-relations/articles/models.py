@@ -1,5 +1,4 @@
 from django.db import models
-from django.urls import reverse
 
 
 class Article(models.Model):
@@ -7,9 +6,6 @@ class Article(models.Model):
     text = models.TextField(verbose_name='Текст')
     published_at = models.DateTimeField(verbose_name='Дата публикации')
     image = models.ImageField(null=True, blank=True, verbose_name='Изображение')
-
-    # def get_absolute_url(self):
-    #     return reverse('post', kwargs={'post_id': self.pk})
 
     class Meta:
         verbose_name = 'Статья'
@@ -33,9 +29,9 @@ class Tag(models.Model):
 
 
 class ArticleScope(models.Model):
-    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='tags')
-    tag = models.ForeignKey(Tag, on_delete=models.CASCADE, related_name='tags', verbose_name='Раздел')
-    main = models.BooleanField(default=False, verbose_name='Основной')
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='scopes')
+    tag = models.ForeignKey(Tag, on_delete=models.CASCADE, related_name='scopes', verbose_name='Раздел')
+    is_main = models.BooleanField(default=False, verbose_name='Основной')
 
     class Meta:
         verbose_name = 'Тематика Статьи'
