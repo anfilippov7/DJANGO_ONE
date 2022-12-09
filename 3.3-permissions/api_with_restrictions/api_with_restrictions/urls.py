@@ -19,10 +19,7 @@ from rest_framework.routers import DefaultRouter
 from advertisements.views import AdvertisementViewSet
 
 router = DefaultRouter()
-
 router.register('advertisements', AdvertisementViewSet)
-
-# TODO: подключите `AdvertisementViewSet` - выполнено
 
 urlpatterns = [
     path('api/', include(router.urls)),

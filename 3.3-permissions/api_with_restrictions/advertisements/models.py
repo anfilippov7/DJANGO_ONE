@@ -7,6 +7,7 @@ class AdvertisementStatusChoices(models.TextChoices):
 
     OPEN = "OPEN", "Открыто"
     CLOSED = "CLOSED", "Закрыто"
+    # DRAFT = "DRAFT", "Черновик"
 
 
 class Advertisement(models.Model):
@@ -28,3 +29,12 @@ class Advertisement(models.Model):
     updated_at = models.DateTimeField(
         auto_now=True
     )
+
+
+class Advertisement_favourites(models.Model):
+    """Избранные объявление."""
+
+    user = models.CharField(max_length=40)
+    advertisement = models.IntegerField()
+
+

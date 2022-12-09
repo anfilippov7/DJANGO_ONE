@@ -1,8 +1,7 @@
 from django.contrib.auth.models import User
+from rest_framework.response import Response
 from rest_framework import serializers
-from typesystem import ValidationError
-
-from advertisements.models import Advertisement
+from advertisements.models import Advertisement, Advertisement_favourites
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -25,21 +24,18 @@ class AdvertisementSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         """Метод для создания"""
-
-        # Простановка значения поля создатель по-умолчанию.
-        # Текущий пользователь является создателем объявления
-        # изменить или переопределить его через API нельзя.
-        # обратите внимание на `context` – он выставляется автоматически
-        # через методы ViewSet.
-        # само поле при этом объявляется как `read_only=True`
         validated_data["creator"] = self.context["request"].user
-        # print(validated_data["creator"])
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
         """Метод для обновления"""
-        validated_data["creator"] = self.context["request"].user
-        return super().update(instance, validated_data)
+        user = self.context['request'].user
+        creator_id = instance.__dict__['creator_id']
+        objects = User.objects.filter(pk=creator_id)
+        user_id = [s.username for s in objects]
+        if str(user) == user_id[0]:
+            validated_data["creator"] = self.context["request"].user
+            return super().update(instance, validated_data)
 
     def validate(self, data):
         """Метод для валидации. Вызывается при создании и обновлении."""
@@ -48,12 +44,25 @@ class AdvertisementSerializer(serializers.ModelSerializer):
         objects = Advertisement.objects.filter(status='OPEN', creator=user)
         method = self.context['request'].method
         status = self.initial_data.get('status')
-        # print(len(objects))
-        # print(status)
-        # print(method)
-        if len(objects) >= 110 and method == 'POST':
-            raise ValidationError('У вас превышено количество открытых объявлений')
-        elif len(objects) >= 110 and status == 'OPEN':
-            raise ValidationError('У вас превышено количество открытых объявлений')
-        # super().validate(data)
+
+        if len(objects) >= 10 and method == 'POST':
+            raise serializers.ValidationError("У вас превышено количество открытых объявлений")
+        elif len(objects) >= 10 and status == 'OPEN':
+            raise serializers.ValidationError("У вас превышено количество открытых объявлений")
         return data
+
+
+class Advertisement_favouritesSerializer(serializers.ModelSerializer):
+    """Serializer для избранного."""
+
+    class Meta:
+        model = Advertisement_favourites
+        fields = ('id', 'user', 'advertisement')
+        read_only_fields = ('user',)
+
+    def create(self, validated_data):
+        """Метод для создания записи в таблице избранное"""
+        return super().create(validated_data)
+
+
+
