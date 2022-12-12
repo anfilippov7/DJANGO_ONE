@@ -8,6 +8,7 @@ from .filters import AdvertisementFilter
 from .models import Advertisement, Advertisement_favourites
 from .serializers import AdvertisementSerializer, Advertisement_favouritesSerializer
 from .permissions import isOwnerOrReadOnly
+from django.db.models import Q
 
 
 class AdvertisementViewSet(ModelViewSet):
@@ -19,14 +20,13 @@ class AdvertisementViewSet(ModelViewSet):
     filterset_fields = ['creator', 'created_at']
     permission_classes = [IsAuthenticated, isOwnerOrReadOnly]
 
-    # def list(self, request, **kwargs):
-    #     # Note the use of `get_queryset()` instead of `self.queryset`
-    #     user = list(User.objects.filter(username=request.user))
-    #     user_id = [i.id for i in user] # user id
-    #     print(user_id)
-    #     queryset = Advertisement.objects.all() & Advertisement.objects.filter(creator_id__lt=2).exclude(status="DRAFT")
-    #     serializer = AdvertisementSerializer(queryset, many=True)
-    #     return Response(serializer.data)
+    def list(self, request, **kwargs):
+        # Note the use of `get_queryset()` instead of `self.queryset`
+        user = list(User.objects.filter(username=request.user))
+        user_id = [i.id for i in user] # user id
+        queryset = Advertisement.objects.filter(Q(status="OPEN") | Q(status="CLOSED") | Q(creator_id=user_id[0]))
+        serializer = AdvertisementSerializer(queryset, many=True)
+        return Response(serializer.data)
 
     @action(methods=['get', 'post'], detail=False, permission_classes=[IsAuthenticated])
     def favourite(self, request):
