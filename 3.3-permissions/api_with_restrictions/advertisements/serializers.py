@@ -1,5 +1,4 @@
 from django.contrib.auth.models import User
-from rest_framework.response import Response
 from rest_framework import serializers
 from advertisements.models import Advertisement, Advertisement_favourites
 
@@ -36,6 +35,8 @@ class AdvertisementSerializer(serializers.ModelSerializer):
         if str(user) == user_id[0]:
             validated_data["creator"] = self.context["request"].user
             return super().update(instance, validated_data)
+        else:
+            raise serializers.ValidationError("Вы не являетесь автором данного объявления")
 
     def validate(self, data):
         """Метод для валидации. Вызывается при создании и обновлении."""

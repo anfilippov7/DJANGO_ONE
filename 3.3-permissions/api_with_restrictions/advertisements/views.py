@@ -1,6 +1,7 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.auth.models import User
 from rest_framework.decorators import action
+from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
@@ -15,24 +16,22 @@ class AdvertisementViewSet(ModelViewSet):
     """ViewSet для объявлений."""
     queryset = Advertisement.objects.all()
     serializer_class = AdvertisementSerializer
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_class = AdvertisementFilter
     filterset_fields = ['creator', 'created_at']
+    search_fields = ['status']
     permission_classes = [IsAuthenticated, isOwnerOrReadOnly]
 
-    def list(self, request, **kwargs):
-        # Note the use of `get_queryset()` instead of `self.queryset`
-        user = list(User.objects.filter(username=request.user))
-        user_id = [i.id for i in user] # user id
-        queryset = Advertisement.objects.filter(Q(status="OPEN") | Q(status="CLOSED") | Q(creator_id=user_id[0]))
-        serializer = AdvertisementSerializer(queryset, many=True)
-        return Response(serializer.data)
+    def get_queryset(self):
+        qs = super().get_queryset()
+        qs = qs.filter(Q(status="OPEN") | Q(status="CLOSED") | Q(creator_id=self.request.user))
+        return qs
 
     @action(methods=['get', 'post'], detail=False, permission_classes=[IsAuthenticated])
     def favourite(self, request):
         if request.method == "GET":
             favourites = list(Advertisement_favourites.objects.filter(user=request.user))
-            pk_fav = [i.advertisement for i in favourites]
+            pk_fav = [i.advertisement_id for i in favourites]
             advertisement = list(Advertisement.objects.values().filter(pk__in=pk_fav))
             return Response(advertisement)
 
@@ -62,7 +61,7 @@ class AdvertisementViewSet(ModelViewSet):
 
     def get_permissions(self):
         """Получение прав для действий."""
-        if self.action in ["create", "update", "partial_update"]:
+        if self.action in ["create", "update", "partial_update", 'destroy']:
             return [IsAuthenticated(), isOwnerOrReadOnly()]
         return []
 
@@ -77,6 +76,6 @@ class Advertisement_favouritesViewSet(ModelViewSet):
 
     def get_permissions(self):
         """Получение прав для действий."""
-        if self.action in ["create", "update", "partial_update"]:
+        if self.action in ["create", "update", "partial_update", 'destroy']:
             return [IsAuthenticated(), isOwnerOrReadOnly()]
         return []

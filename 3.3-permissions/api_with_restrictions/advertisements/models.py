@@ -35,6 +35,6 @@ class Advertisement_favourites(models.Model):
     """Избранные объявление."""
 
     user = models.CharField(max_length=40)
-    advertisement = models.IntegerField()
+    advertisement = models.ForeignKey(Advertisement, on_delete=models.CASCADE,)
 
 
