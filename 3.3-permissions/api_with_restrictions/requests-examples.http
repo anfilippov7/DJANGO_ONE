@@ -5,13 +5,14 @@
 # получение объявлений
 GET {{baseUrl}}/advertisements/
 Content-Type: application/json
+Authorization: Token 7d54f2d6420b8c16e7c854c9832fa80d1dcc01e5
 
 ###
 
 # создание объявления
 POST {{baseUrl}}/advertisements/
 Content-Type: application/json
-Authorization: Token 806416d87d6a6658a1b2656268d7ba8ef136c511
+Authorization: Token 642d806be872dd4aa48d28e8d78bae9c24c85244
 
 {
   "title": "Шкаф IKEA",
@@ -21,9 +22,9 @@ Authorization: Token 806416d87d6a6658a1b2656268d7ba8ef136c511
 ###
 
 # попытка поменять объявление
-PATCH {{baseUrl}}/advertisements/1/
+PATCH {{baseUrl}}/advertisements/6/
 Content-Type: application/json
-Authorization: Token 806416d87d6a6658a1b2656268d7ba8ef136c511
+Authorization: Token 7d54f2d6420b8c16e7c854c9832fa80d1dcc01e5
 
 {
   "status": "CLOSED"
@@ -32,11 +33,49 @@ Authorization: Token 806416d87d6a6658a1b2656268d7ba8ef136c511
 ###
 
 # фильтрация по создателю
-GET {{baseUrl}}/advertisements/?creator=1
+GET {{baseUrl}}/advertisements/?creator=2
+Authorization: Token 642d806be872dd4aa48d28e8d78bae9c24c85244
 Content-Type: application/json
 
 ###
 
 # фильтрация по дате
-GET {{baseUrl}}/advertisements/?created_at_before=2020-10-01
+GET {{baseUrl}}/advertisements/?created_at_before=2022-12-20
+Authorization: Token 7d54f2d6420b8c16e7c854c9832fa80d1dcc01e5
 Content-Type: application/json
+
+
+###
+
+# добавление объявления в избранное
+POST {{baseUrl}}/advertisements/favourite/
+Content-Type: application/json
+Authorization: Token 7d54f2d6420b8c16e7c854c9832fa80d1dcc01e5
+
+{
+  "advertisement": 1
+}
+
+
+###
+
+# просмотр избранного объявления
+GET {{baseUrl}}/advertisements/favourite/
+Content-Type: application/json
+Authorization: Token 7d54f2d6420b8c16e7c854c9832fa80d1dcc01e5
+
+{
+
+}
+
+
+###
+
+# фильтрация по статусу объявления
+GET {{baseUrl}}/advertisements/?search=closed
+Content-Type: application/json
+Authorization: Token 7d54f2d6420b8c16e7c854c9832fa80d1dcc01e5
+
+{
+
+}
