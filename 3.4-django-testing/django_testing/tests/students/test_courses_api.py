@@ -1,10 +1,8 @@
 import pytest
-from django.contrib.auth.models import User
 from rest_framework.test import APIClient
 from model_bakery import baker
-
 from students.models import Student, Course
-
+from django.conf import settings
 
 @pytest.fixture
 def client():
@@ -12,43 +10,128 @@ def client():
 
 
 @pytest.fixture
-def user():
-    return Student.objects.create_user('admin')
-
-
-@pytest.fixture
-def message_factory():
+def course_factory():
     def factory(*args, **kwargs):
         return baker.make(Course, *args, **kwargs)
 
     return factory
 
 
+@pytest.fixture
+def student_factory():
+    def factory(*args, **kwargs):
+        return baker.make(Student, *args, **kwargs)
+
+    return factory
+
+
+@pytest.fixture
+def student_factory():
+    def factory(*args, **kwargs):
+        return baker.make(Student, *args, **kwargs)
+
+    return factory
 
 @pytest.mark.django_db
-def test_get_messages(client, user, message_factory):
+def test_get_course(client, course_factory):
     # Arrange
-    messages = message_factory(_quantity=10)
+    courses = course_factory(_quantity=10)
 
     # Act
-    response = client.get('/messages/')
+    response = client.get('/api/v1/courses/1/')
+    data = response.json()
 
     # Assert
     assert response.status_code == 200
-    data = response.json()
-    assert len(data) == len(messages)
-    for i, m in enumerate(data):
-        assert m['text'] == messages[i].text
+    assert data['id'] == 1
 
 
 @pytest.mark.django_db
-def test_create_message(client, user):
-    count = Course.objects.count()
+def test_get_courses(client, course_factory):
+    # Arrange
+    courses = course_factory(_quantity=10)
 
-    response = client.post('/messages/', data={'user': user.id, 'text': 'test text'})
+    # Act
+    response = client.get('/api/v1/courses/')
+    data = response.json()
 
+    # Assert
+    assert response.status_code == 200
+    assert len(data) == len(courses)
+
+
+@pytest.mark.django_db
+def test_get_id(client, course_factory):
+    # Arrange
+    courses = course_factory(_quantity=100)
+
+    # Act
+    response = client.get(f'/api/v1/courses/?id=100')
+    data = response.json()
+
+    # Assert
+    assert response.status_code == 200
+    assert data[0]['id'] == 100
+
+
+@pytest.mark.django_db
+def test_get_name(client, course_factory):
+    # Arrange
+    courses = baker.make(Course, name='Python-разработчик')
+
+    # Act
+    response = client.get('/api/v1/courses/?name=Python-разработчик')
+    data = response.json()
+
+    # Assert
+    assert response.status_code == 200
+    assert data[0]['name'] == 'Python-разработчик'
+
+
+
+@pytest.mark.django_db
+def test_post_course(client):
+    # Arrange
+
+    # Act
+    response = client.post('/api/v1/courses/', {'name': 'DevOps-инженер'}, format='json')
+    data = response.json()
+
+    # Assert
     assert response.status_code == 201
-    assert Course.objects.count() == count + 1
+    assert data['name'] == 'DevOps-инженер'
+
+
+@pytest.mark.django_db
+def test_patch_name(client, course_factory):
+    # Arrange
+    courses = baker.make(Course, id=1, name='Python-разработчик')
+
+    # Act
+    response = client.patch('/api/v1/courses/1/', {'name': 'DevOps-инженер'}, format='json')
+    data = response.json()
+
+    # Assert
+    assert response.status_code == 200
+    assert data['name'] == 'DevOps-инженер'
+
+
+@pytest.mark.django_db
+def test_delete_name(client, course_factory):
+    # Arrange
+    courses = baker.make(Course, id=1, name='Python-разработчик')
+
+    # Act
+    response = client.delete('/api/v1/courses/1/')
+
+    # Assert
+    assert response.status_code == 204
+
+
+@pytest.mark.parametrize('test_input, expected', [('21', settings.MAX_STUDENTS_PER_COURSE),
+                                                  ('20', settings.MAX_STUDENTS_PER_COURSE)])
+def test_students_specific_settings(test_input, expected):
+    assert eval(test_input) <= expected
 
 
 
@@ -74,36 +157,6 @@ def test_create_message(client, user):
 
 
 
-# def test_example():
-#     assert False, "Just test example"
-
-
-# def test_something():
-#     assert True
-
-
-# test_api.py
-# создание клиента для запросов
-# import pytest
-# from rest_framework.reverse import reverse
-# from rest_framework.status import HTTP_200_OK
-# from rest_framework.test import APIClient
-# def test_ping():
-#       client = APIClient()
-#       url = reverse("/courses/")
-#       resp = client.get(url)
-#       assert resp.status_code == HTTP_200_OK
-#       resp_json = resp.json()
-#       assert resp_json["status"] == "Ok"
 
 
 
-
-# from students.models import Course
-#
-#
-# @pytest.mark.django_db
-# def test_product_create():
-#           product = Course.objects.create(name="Test", students='fdf')
-#           assert product.id
-#           assert product.name == "Test"
