@@ -4,6 +4,7 @@ from model_bakery import baker
 from students.models import Student, Course
 from django.conf import settings
 
+
 @pytest.fixture
 def client():
     return APIClient()
